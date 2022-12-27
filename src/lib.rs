@@ -168,4 +168,24 @@ mod verification {
 
         x.mul_u64(y);
     }
+
+    #[cfg(kani)]
+    #[kani::proof]
+    fn check_add() {
+        let x: u128 = kani::any();
+        let y: u128 = kani::any();
+
+        let (xhigh, xlow) = split(x);
+        let (yhigh, ylow) = split(y);
+
+        let (carry, high, low) = add(xhigh, xlow, yhigh, ylow);
+
+        let (want, overflow) = x.overflowing_add(y);
+        if !overflow {
+            assert_eq!(carry, 0);
+
+            let got = ((high as u128) << 64) + low as u128;
+            assert_eq!(got, want)
+        }
+    }
 }
