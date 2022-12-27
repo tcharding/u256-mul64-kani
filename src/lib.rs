@@ -71,8 +71,8 @@ impl U256 {
 
         let mut ret_overflow = false;
 
-        let (d, c) = split_parts(self.0);
-        let (b, a) = split_parts(self.1);
+        let (d, c) = split(self.0);
+        let (b, a) = split(self.1);
         let parts = vec![a, b, c, d]; // self as a little-endian array of u64s
 
         let mut ret = U256::ZERO;
@@ -82,7 +82,7 @@ impl U256 {
 
         for p in parts {
             let r = (p as u128) * (rhs as u128); // Cannot overlflow 128 bits.
-            let (h, l) = split_parts(r);
+            let (h, l) = split(r);
             let (carry, high, low) = add(h, l, prev_carry, prev_high); // h << 64 + l + high << 64 + low
 
             ret = ret + U256::from(low) << shift;
@@ -101,7 +101,7 @@ impl U256 {
     pub fn is_zero(&self) -> bool { self.0 == 0 && self.1 == 0 }
 }
 
-fn split_parts(x: u128) -> (u64, u64) {
+fn split(x: u128) -> (u64, u64) {
     let high = (x >> 64) as u64;
     let low = (x & MASK as u128) as u64;
     (high, low)
